@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0c14">
+<title>Bike Racing — Neon Sunset</title>
+<style>
+:root{--cyan:#00f3ff;--gold:#ffcc00;--pink:#ff0055;--glass:rgba(12,16,29,.78)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b0c14;color:#fff;font-family:system-ui,Arial,sans-serif;touch-action:none}canvas{position:absolute;inset:0;width:100%;height:100%}#hud{position:absolute;inset:0;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));pointer-events:none;display:flex;flex-direction:column;justify-content:space-between}.top,.bottom{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.card{background:var(--glass);border:1px solid #00f3ff55;border-radius:12px;padding:8px 12px;box-shadow:0 4px 18px #0008;backdrop-filter:blur(8px)}.label{font-size:10px;letter-spacing:1.5px;color:#aab8ca;font-weight:800}.value{font-size:20px;font-weight:900;letter-spacing:1px;text-shadow:0 0 10px #00f3ff88}.gold{color:var(--gold)}.right{display:flex;gap:8px;pointer-events:auto}.icon{width:42px;height:42px;background:var(--glass);border:1px solid #00f3ff66;border-radius:12px;color:var(--cyan);font-size:19px}.bottom{align-items:flex-end}.dash{width:min(230px,48vw);border:1px solid #00f3ff77;border-radius:16px;background:linear-gradient(135deg,#101422ed,#080a12f2);padding:10px 14px;box-shadow:0 8px 25px #0009}.speedrow{display:flex;align-items:baseline;justify-content:space-between}.speed{font-size:34px;font-weight:950;line-height:1}.unit{font-size:10px;color:var(--cyan);font-weight:800}.bar{height:7px;background:#ffffff20;border-radius:8px;overflow:hidden;margin:6px 0}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--gold),var(--pink));box-shadow:0 0 9px var(--cyan)}.nitrolabel{display:flex;justify-content:space-between;color:var(--cyan);font-size:9px;font-weight:800;letter-spacing:1px}.nitrotrack{height:6px;background:#0009;border:1px solid #00f3ff55;border-radius:5px;overflow:hidden;margin-top:3px}.nitrofill{height:100%;width:100%;background:linear-gradient(90deg,#0785ff,var(--cyan),white)}#controls{position:absolute;inset:auto 0 12px;padding:0 14px;display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}.group{display:flex;gap:9px;pointer-events:auto}.btn{width:58px;height:58px;border-radius:17px;color:white;background:#101728c9;border:2px solid #00f3ff77;font-size:12px;font-weight:900;box-shadow:0 5px 15px #0008;touch-action:none}.btn span{display:block;font-size:22px;line-height:22px}.btn:active,.btn.down{background:#00f3ff55;transform:scale(.94)}.btn.gold{color:var(--gold);border-color:#ffcc0080}.btn.pink{color:var(--pink);border-color:#ff005580}.overlay{position:absolute;inset:0;display:grid;place-items:center;background:#050711aa;backdrop-filter:blur(5px);pointer-events:auto}.panel{text-align:center;width:min(420px,88vw);padding:26px 22px;background:#0c1123ee;border:1px solid #00f3ff77;border-radius:22px;box-shadow:0 0 45px #00f3ff20}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:4px;font-weight:900}.title{font-size:clamp(28px,7vw,48px);font-weight:1000;font-style:italic;line-height:1;margin:8px 0;text-shadow:0 0 20px #00f3ff88}.subtitle{color:#b4bfd0;font-size:14px;line-height:1.5;margin:12px auto 20px;max-width:320px}.start{border:0;border-radius:12px;padding:13px 28px;background:linear-gradient(90deg,#00b9d1,#00f3ff);color:#071019;font-size:14px;font-weight:1000;letter-spacing:2px}.hidden{display:none!important}.hint{font-size:10px;color:#8794a8;margin-top:13px}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud">
+  <div class="top">
+    <div class="card"><div class="label">DISTANCE</div><div class="value"><span id="distance">0</span><small style="font-size:11px"> m</small></div></div>
+    <div class="card"><div class="label">ENERGY</div><div class="value gold" id="score">0</div></div>
+    <div class="right"><button class="icon" id="pause" aria-label="Pause">Ⅱ</button></div>
+  </div>
+  <div class="bottom">
+    <div class="dash"><div class="bar"><div class="fill" id="rpm"></div></div><div class="speedrow"><div><span class="speed" id="speed">0</span><span class="unit"> KM/H</span></div><span class="value" id="gear" style="font-size:15px">N</span></div><div class="nitrolabel"><span>NITRO BOOST</span><span id="nitroText">100%</span></div><div class="nitrotrack"><div class="nitrofill" id="nitro"></div></div></div>
+    <div class="card" style="text-align:right"><div class="label">BEST RUN</div><div class="value gold" id="best">0</div></div>
+  </div>
+</div>
+<div id="controls">
+  <div class="group"><button class="btn" data-action="left" aria-label="Steer left"><span>◀</span>LEFT</button><button class="btn" data-action="right" aria-label="Steer right"><span>▶</span>RIGHT</button></div>
+  <div class="group"><button class="btn pink" data-action="brake"><span>▽</span>BRAKE</button><button class="btn" data-action="go"><span>▲</span>GO</button><button class="btn gold" data-action="nitro"><span>⚡</span>NITRO</button></div>
+</div>
+<div class="overlay" id="overlay"><div class="panel"><div class="eyebrow">NEON SUNSET // STREET LEAGUE</div><div class="title" id="overlayTitle">BIKE RACING</div><div class="subtitle" id="overlayText">Dodge traffic, grab energy and push your bike to the limit. Hold GO to accelerate. Nitro is your ticket to a new high score.</div><button class="start" id="start">START RIDE</button><div class="hint">SWIPE TO STEER · HOLD NITRO TO BOOST</div></div></div>
+<script>
+(()=>{'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id), actions={left:false,right:false,go:false,brake:false,nitro:false};
+let w=0,h=0,dpr=1,last=0,roadOffset=0,speed=0,distance=0,score=0,nitro=100,playerX=0,objects=[],spawn=0,running=false,paused=false,over=false,best=Number(localStorage.getItem('bikeRacingBest')||0),shake=0;
+$('best').textContent=best;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);w=innerWidth;h=innerHeight;canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+function roadY(){return h*.34}function roadHalf(y){return w*(.105+(.36-.105)*Math.max(0,(y-roadY())/(h-roadY())))}function roadCenter(y){return w*.5+Math.sin(roadOffset*.00035)*w*.035*(y/h)}
+function rounded(x,y,ww,hh,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,ww,hh,r);ctx.fill()}
+function drawBike(x,y,scale,color='#ff315d',lean=0){ctx.save();ctx.translate(x,y);ctx.rotate(lean);ctx.scale(scale,scale);ctx.shadowBlur=18;ctx.shadowColor=color;ctx.fillStyle='#070910';ctx.beginPath();ctx.ellipse(0,20,9,18,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(0,-20,7,13,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#c8faff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-13,-12);ctx.lineTo(13,-12);ctx.stroke();ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(-12,10);ctx.lineTo(-8,-9);ctx.lineTo(9,-13);ctx.lineTo(13,7);ctx.lineTo(4,13);ctx.closePath();ctx.fill();ctx.fillStyle='#182a41';ctx.beginPath();ctx.arc(0,-24,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e7fcff';ctx.fillRect(-3,-36,6,3);ctx.restore()}
+function spawnObject(){const lanes=[-.66,0,.66],lane=lanes[Math.floor(Math.random()*lanes.length)];objects.push({lane,z:0,type:Math.random()<.25?'energy':'traffic',color:['#ff315d','#ff8a24','#a04dff'][Math.floor(Math.random()*3)],hit:false})}
+function draw(){ctx.clearRect(0,0,w,h);let sky=ctx.createLinearGradient(0,0,0,h);sky.addColorStop(0,'#111329');sky.addColorStop(.42,'#392047');sky.addColorStop(1,'#080b13');ctx.fillStyle=sky;ctx.fillRect(0,0,w,h);
+// sunset
+let sunX=w*.72,sunY=roadY()*.55;let glow=ctx.createRadialGradient(sunX,sunY,5,sunX,sunY,w*.18);glow.addColorStop(0,'#ffb45c');glow.addColorStop(.28,'#ff547d');glow.addColorStop(1,'#ff387000');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h*.58);
+// distant skyline
+ctx.fillStyle='#171526';for(let i=0;i<18;i++){let bw=w*.035,bh=h*(.035+((i*37)%11)/100),x=((i*w/14-roadOffset*.025)%(w+bw)+w+bw)%(w+bw)-bw;ctx.fillRect(x,roadY()-bh,bw,bh)}
+// ground and road
+ctx.fillStyle='#10151e';ctx.fillRect(0,roadY(),w,h-roadY());let top=roadY(),bottom=h+20,cTop=roadCenter(top),cBot=roadCenter(bottom),ht=roadHalf(top),hb=roadHalf(bottom);ctx.fillStyle='#252532';ctx.beginPath();ctx.moveTo(cTop-ht,top);ctx.lineTo(cTop+ht,top);ctx.lineTo(cBot+hb,bottom);ctx.lineTo(cBot-hb,bottom);ctx.fill();
+// neon edge and lane stripes
+ctx.lineWidth=3;ctx.strokeStyle='#00f3ff';ctx.shadowColor='#00f3ff';ctx.shadowBlur=12;for(let side of [-1,1]){ctx.beginPath();ctx.moveTo(cTop+side*ht,top);ctx.lineTo(cBot+side*hb,bottom);ctx.stroke()}ctx.shadowBlur=0;
+for(let lane of [-1/3,1/3]){for(let i=0;i<12;i++){let phase=((i/12+roadOffset*.0012)%1),y=top+phase*(h-top),half=roadHalf(y),cx=roadCenter(y)+lane*half;let seg=(h-top)*.035*phase+.5;ctx.fillStyle=`rgba(0,243,255,${.18+phase*.6})`;ctx.fillRect(cx-1.2*phase,y,2.4*phase,seg)}}
+// roadside light posts
+for(let i=0;i<8;i++){let phase=((i/8+roadOffset*.0008)%1),y=top+phase*(h-top),cx=roadCenter(y),half=roadHalf(y),size=3+phase*12;for(let s of [-1,1]){ctx.fillStyle='#ff3c9a';ctx.shadowColor='#ff3c9a';ctx.shadowBlur=10*phase;ctx.fillRect(cx+s*(half+size*1.5),y-size*2,size, size*3)}}ctx.shadowBlur=0;
+// objects
+for(let o of objects){let p=o.z,y=top+p*(h-top),x=roadCenter(y)+o.lane*roadHalf(y),s=.25+p*1.05;if(o.type==='energy'){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.shadowColor='#ffcc00';ctx.shadowBlur=20;ctx.fillStyle='#ffcc00';ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(12,0);ctx.lineTo(0,14);ctx.lineTo(-12,0);ctx.closePath();ctx.fill();ctx.restore()}else{rounded(x-12*s,y-27*s,24*s,46*s,7*s,o.color);rounded(x-8*s,y-17*s,16*s,11*s,3*s,'#bceeff');ctx.fillStyle='#111';ctx.fillRect(x-9*s,y+7*s,5*s,7*s);ctx.fillRect(x+4*s,y+7*s,5*s,7*s)}}
+// player
+let bx=w*.5+playerX*w*.27,by=h*.76;drawBike(bx,by,Math.max(.8,Math.min(1.35,h/500)),'#ff315d',(actions.left?-0.14:0)+(actions.right?0.14:0));
+if(shake>0){ctx.fillStyle=`rgba(255,0,70,${shake*.13})`;ctx.fillRect(0,0,w,h)}
+}
+function hud(){ $('speed').textContent=Math.round(speed*1.8);$('distance').textContent=Math.floor(distance).toLocaleString();$('score').textContent=Math.floor(score).toLocaleString();$('rpm').style.width=Math.min(100,speed/3.3)+'%';$('nitro').style.width=nitro+'%';$('nitroText').textContent=Math.floor(nitro)+'%';$('gear').textContent=speed<8?'N':speed<35?'1':speed<65?'2':speed<95?'3':'4'}
+function endGame(){running=false;over=true;best=Math.max(best,Math.floor(score));localStorage.setItem('bikeRacingBest',best);$('best').textContent=best;$('overlayTitle').textContent='RIDE OVER';$('overlayText').textContent=`Distance ${Math.floor(distance)} m · Energy ${Math.floor(score)}. Your best run is ${best}. Ready to race again?`;$('start').textContent='RACE AGAIN';$('overlay').classList.remove('hidden')}
+function update(dt){if(!running||paused)return;let boost=actions.nitro&&nitro>0&&speed>10;if(actions.go)speed+=dt*(boost?54:31);else speed-=dt*(actions.brake?70:18);speed=Math.max(0,Math.min(145,speed));if(boost)nitro=Math.max(0,nitro-dt*34);else nitro=Math.min(100,nitro+dt*8);if(actions.left)playerX-=dt*(1.15+speed*.006);if(actions.right)playerX+=dt*(1.15+speed*.006);playerX=Math.max(-1,Math.min(1,playerX));distance+=speed*dt*.12;score+=speed*dt*.035;roadOffset+=speed*dt;spawn-=dt;if(spawn<=0){spawnObject();spawn=Math.max(.42,1.3-speed*.004)+Math.random()*.5}for(let o of objects){o.z+=dt*(.13+speed*.0018);if(!o.hit&&o.z>.78&&o.z<.96&&Math.abs(playerX-o.lane)<.34){o.hit=true;if(o.type==='energy'){score+=100;nitro=Math.min(100,nitro+15)}else{speed*=.48;shake=1}}}objects=objects.filter(o=>o.z<1.12);shake=Math.max(0,shake-dt*2.5);if(speed>16&&objects.some(o=>o.type==='traffic'&&o.hit&&o.z>.78&&o.z<1.02&&Math.abs(playerX-o.lane)<.34)){endGame()}hud()}
+function loop(t){let dt=Math.min(.04,(t-last)/1000||0);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+function start(){objects=[];speed=0;distance=0;score=0;nitro=100;playerX=0;roadOffset=0;spawn=.5;over=false;paused=false;running=true;$('overlay').classList.add('hidden');$('pause').textContent='Ⅱ';hud()}
+$('start').addEventListener('click',start);$('pause').addEventListener('click',()=>{if(!running)return;paused=!paused;$('pause').textContent=paused?'▶':'Ⅱ';if(paused){$('overlayTitle').textContent='PAUSED';$('overlayText').textContent='Take a breather. Your ride is waiting.';$('start').textContent='RESUME RIDE';$('overlay').classList.remove('hidden')}else $('overlay').classList.add('hidden')});
+document.querySelectorAll('[data-action]').forEach(btn=>{const key=btn.dataset.action;const down=e=>{e.preventDefault();actions[key]=true;btn.classList.add('down');try{btn.setPointerCapture(e.pointerId)}catch(_){}};const up=e=>{e.preventDefault();actions[key]=false;btn.classList.remove('down')};btn.addEventListener('pointerdown',down);['pointerup','pointercancel','lostpointercapture'].forEach(ev=>btn.addEventListener(ev,up))});let touchStart=null;canvas.addEventListener('pointerdown',e=>{touchStart=e.clientX});canvas.addEventListener('pointerup',e=>{if(touchStart!==null){let dx=e.clientX-touchStart;if(Math.abs(dx)>18)playerX=Math.max(-1,Math.min(1,playerX+dx/w*2.3));touchStart=null}});addEventListener('keydown',e=>{let map={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'go',' ':'go',ArrowDown:'brake',Shift:'nitro'};if(map[e.key])actions[map[e.key]]=true;if(e.key==='Escape'&&running)$('pause').click()});addEventListener('keyup',e=>{let map={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'go',' ':'go',ArrowDown:'brake',Shift:'nitro'};if(map[e.key])actions[map[e.key]]=false});
+})();
+</script>
+</body>
+</html>
